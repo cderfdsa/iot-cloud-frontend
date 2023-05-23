@@ -2,7 +2,9 @@
   <div class="container">
     <div class="left-side">
       <div class="panel">
+        <!-- 欢迎回来 xx-->
         <Banner />
+        <!-- 统计数据【所有设备、在线设备、活跃设备、告警设备】 xx-->
         <DataPanel />
         <ContentChart />
       </div>

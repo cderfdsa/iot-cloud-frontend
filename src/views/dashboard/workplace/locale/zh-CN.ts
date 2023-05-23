@@ -34,4 +34,8 @@ export default {
   'workplace.popularContent.video': '视频',
   'workplace.categoriesPercent': '内容类型占比',
   'workplace.pecs': '个',
+  'workplace.allDevice': '所有设备',
+  'workplace.onlineDevice': '在线设备',
+  'workplace.activeDevice': '活跃设备',
+  'workplace.alarmDevice': '告警设备',
 };

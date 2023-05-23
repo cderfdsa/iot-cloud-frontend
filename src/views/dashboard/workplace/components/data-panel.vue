@@ -12,15 +12,15 @@
           />
         </a-avatar>
         <a-statistic
-          :title="$t('workplace.onlineContent')"
-          :value="373.5"
-          :precision="1"
+          :title="$t('workplace.allDevice')"
+          :value="373"
+          :precision="0"
           :value-from="0"
           animation
           show-group-separator
         >
           <template #suffix>
-            W+ <span class="unit">{{ $t('workplace.pecs') }}</span>
+            <span class="unit">{{ $t('workplace.pecs') }}</span>
           </template>
         </a-statistic>
       </a-space>
@@ -37,7 +37,7 @@
           />
         </a-avatar>
         <a-statistic
-          :title="$t('workplace.putIn')"
+          :title="$t('workplace.onlineDevice')"
           :value="368"
           :value-from="0"
           animation
@@ -61,7 +61,7 @@
           />
         </a-avatar>
         <a-statistic
-          :title="$t('workplace.newDay')"
+          :title="$t('workplace.activeDevice')"
           :value="8874"
           :value-from="0"
           animation
@@ -86,13 +86,15 @@
           />
         </a-avatar>
         <a-statistic
-          :title="$t('workplace.newFromYesterday')"
-          :value="2.8"
-          :precision="1"
+          :title="$t('workplace.alarmDevice')"
+          :value="2"
+          :precision="0"
           :value-from="0"
           animation
         >
-          <template #suffix> % <icon-caret-up class="up-icon" /> </template>
+          <template #suffix>
+            <span class="unit">{{ $t('workplace.pecs') }}</span>
+          </template>
         </a-statistic>
       </a-space>
     </a-grid-item>
