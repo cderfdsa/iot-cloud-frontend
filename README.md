@@ -5,4 +5,6 @@
 
 - Vue3
 - arco-design-pro-vue
+- node 18
+- pnpm
 
