@@ -20,6 +20,7 @@ const PROFILE: AppRouteRecordRaw = {
         locale: 'menu.profile.basic',
         requiresAuth: true,
         roles: ['admin'],
+        parent: true,
       },
     },
   ],

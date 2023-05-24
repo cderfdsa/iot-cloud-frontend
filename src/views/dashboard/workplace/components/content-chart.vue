@@ -6,7 +6,7 @@
       :body-style="{
         paddingTop: '20px',
       }"
-      :title="$t('workplace.contentData')"
+      :title="title"
     >
       <template #extra>
         <a-link>{{ $t('workplace.viewMore') }}</a-link>
@@ -24,6 +24,10 @@
   import useChartOption from '@/hooks/chart-option';
   import { ToolTipFormatterParams } from '@/types/echarts';
   import { AnyObject } from '@/types/global';
+
+  defineProps<{
+    title: string;
+  }>();
 
   function graphicFactory(side: AnyObject) {
     return {

@@ -97,8 +97,25 @@
               const icon = element?.meta?.icon
                 ? () => h(compile(`<${element?.meta?.icon}/>`))
                 : null;
-              const node =
-                element?.children && element?.children.length !== 0 ? (
+              let node;
+              if (
+                element?.children &&
+                element?.children.length === 1 &&
+                element?.children[0].meta?.parent
+              ) {
+                node = (
+                  <a-menu-item
+                    key={element?.children[0].name}
+                    v-slots={{ icon }}
+                    onClick={() =>
+                      element.children ? goto(element.children[0]) : undefined
+                    }
+                  >
+                    {t(element?.meta?.locale || '')}
+                  </a-menu-item>
+                );
+              } else if (element?.children && element?.children.length !== 0) {
+                node = (
                   <a-sub-menu
                     key={element?.name}
                     v-slots={{
@@ -108,7 +125,9 @@
                   >
                     {travel(element?.children)}
                   </a-sub-menu>
-                ) : (
+                );
+              } else {
+                node = (
                   <a-menu-item
                     key={element?.name}
                     v-slots={{ icon }}
@@ -117,6 +136,7 @@
                     {t(element?.meta?.locale || '')}
                   </a-menu-item>
                 );
+              }
               nodes.push(node as never);
             });
           }

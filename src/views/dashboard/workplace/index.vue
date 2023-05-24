@@ -6,20 +6,37 @@
         <Banner />
         <!-- 统计数据【所有设备、在线设备、活跃设备、告警设备】 xx-->
         <DataPanel />
-        <ContentChart />
       </div>
-      <a-grid :cols="24" :col-gap="16" :row-gap="16" style="margin-top: 16px">
+      <a-grid
+        :cols="24"
+        :col-gap="16"
+        :row-gap="16"
+        style="margin-top: 16px; margin-bottom: 16px"
+      >
         <a-grid-item
-          :span="{ xs: 24, sm: 24, md: 24, lg: 12, xl: 12, xxl: 12 }"
+          :span="{ xs: 24, sm: 24, md: 12, lg: 12, xl: 12, xxl: 12 }"
         >
-          <PopularContent />
+          <CategoriesPercent title="设备接入类型" />
         </a-grid-item>
         <a-grid-item
-          :span="{ xs: 24, sm: 24, md: 24, lg: 12, xl: 12, xxl: 12 }"
+          :span="{ xs: 24, sm: 24, md: 12, lg: 12, xl: 12, xxl: 12 }"
         >
-          <CategoriesPercent />
+          <CategoriesPercent title="设备在线率" />
+        </a-grid-item>
+        <a-grid-item
+          :span="{ xs: 24, sm: 24, md: 12, lg: 12, xl: 12, xxl: 12 }"
+        >
+          <CategoriesPercent title="设备活跃率" />
+        </a-grid-item>
+        <a-grid-item
+          :span="{ xs: 24, sm: 24, md: 12, lg: 12, xl: 12, xxl: 12 }"
+        >
+          <CategoriesPercent title="设备告警率" />
         </a-grid-item>
       </a-grid>
+      <div class="panel">
+        <ContentChart title="设备消息数" />
+      </div>
     </div>
     <div class="right-side">
       <a-grid :cols="24" :row-gap="16">
@@ -47,7 +64,7 @@
   import Banner from './components/banner.vue';
   import DataPanel from './components/data-panel.vue';
   import ContentChart from './components/content-chart.vue';
-  import PopularContent from './components/popular-content.vue';
+  // import PopularContent from './components/popular-content.vue';
   import CategoriesPercent from './components/categories-percent.vue';
   import RecentlyVisited from './components/recently-visited.vue';
   import QuickOperation from './components/quick-operation.vue';

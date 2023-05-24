@@ -1,7 +1,7 @@
 <template>
   <div class="login-form-wrapper">
     <div class="login-form-title">{{ $t('login.form.title') }}</div>
-    <div class="login-form-sub-title">{{ $t('login.form.title') }}</div>
+    <div class="login-form-sub-title">{{ $t('login.form.subtitle') }}</div>
     <div class="login-form-error-msg">{{ errorMessage }}</div>
     <a-form
       ref="loginForm"
@@ -19,6 +19,7 @@
         <a-input
           v-model="userInfo.username"
           :placeholder="$t('login.form.userName.placeholder')"
+          allow-clear
         >
           <template #prefix>
             <icon-user />
@@ -26,37 +27,41 @@
         </a-input>
       </a-form-item>
       <a-form-item
-        field="password"
-        :rules="[{ required: true, message: $t('login.form.password.errMsg') }]"
+        field="validateCode"
+        :rules="[
+          { required: true, message: $t('login.form.validateCode.errMsg') },
+        ]"
         :validate-trigger="['change', 'blur']"
         hide-label
       >
-        <a-input-password
-          v-model="userInfo.password"
-          :placeholder="$t('login.form.password.placeholder')"
+        <a-input
+          v-model="userInfo.validateCode"
+          :placeholder="$t('login.form.validateCode.placeholder')"
           allow-clear
         >
           <template #prefix>
             <icon-lock />
           </template>
-        </a-input-password>
+          <template #append>
+            <a-button type="text" long @click="handleValidateCodeButton">{{
+              validateCodeText
+            }}</a-button>
+          </template>
+          <template #button-icon> </template>
+        </a-input>
       </a-form-item>
       <a-space :size="16" direction="vertical">
-        <div class="login-form-password-actions">
+        <div class="login-form-validateCode-actions">
           <a-checkbox
-            checked="rememberPassword"
-            :model-value="loginConfig.rememberPassword"
-            @change="setRememberPassword as any"
+            checked="rememberValidateCode"
+            :model-value="loginConfig.rememberValidateCode"
+            @change="setRememberValidateCode"
           >
-            {{ $t('login.form.rememberPassword') }}
+            {{ $t('login.form.30daysNoLoginRequired') }}
           </a-checkbox>
-          <a-link>{{ $t('login.form.forgetPassword') }}</a-link>
         </div>
         <a-button type="primary" html-type="submit" long :loading="loading">
-          {{ $t('login.form.login') }}
-        </a-button>
-        <a-button type="text" long class="login-form-register-btn">
-          {{ $t('login.form.register') }}
+          {{ $t('login.form.login') + '/' + $t('login.form.register') }}
         </a-button>
       </a-space>
     </a-form>
@@ -81,13 +86,13 @@
   const userStore = useUserStore();
 
   const loginConfig = useStorage('login-config', {
-    rememberPassword: true,
-    username: 'admin', // 演示默认值
-    password: 'admin', // demo default value
+    rememberValidateCode: true,
+    username: '',
+    validateCode: '',
   });
   const userInfo = reactive({
     username: loginConfig.value.username,
-    password: loginConfig.value.password,
+    validateCode: loginConfig.value.validateCode,
   });
 
   const handleSubmit = async ({
@@ -110,12 +115,14 @@
           },
         });
         Message.success(t('login.form.login.success'));
-        const { rememberPassword } = loginConfig.value;
-        const { username, password } = values;
+        const { rememberValidateCode } = loginConfig.value;
+        const { username, validateCode } = values;
         // 实际生产环境需要进行加密存储。
         // The actual production environment requires encrypted storage.
-        loginConfig.value.username = rememberPassword ? username : '';
-        loginConfig.value.password = rememberPassword ? password : '';
+        loginConfig.value.username = rememberValidateCode ? username : '';
+        loginConfig.value.validateCode = rememberValidateCode
+          ? validateCode
+          : '';
       } catch (err) {
         errorMessage.value = (err as Error).message;
       } finally {
@@ -123,8 +130,32 @@
       }
     }
   };
-  const setRememberPassword = (value: boolean) => {
-    loginConfig.value.rememberPassword = value;
+  const setRememberValidateCode = (value: any) => {
+    loginConfig.value.rememberValidateCode = value;
+  };
+
+  const validateCodeText = ref('获取验证码');
+  let validateCodeInterval: number;
+  let validateCodeIntervalTime = 10;
+  const handleValidateCodeButton = async () => {
+    if (
+      (validateCodeText.value === '获取验证码' ||
+        validateCodeText.value === '重新获取') &&
+      !validateCodeInterval
+    ) {
+      validateCodeText.value = `${validateCodeIntervalTime} s`;
+      validateCodeInterval = setInterval(() => {
+        if (validateCodeIntervalTime <= 0) {
+          clearInterval(validateCodeInterval);
+          validateCodeText.value = '重新获取';
+          validateCodeInterval = 0;
+          validateCodeIntervalTime = 10;
+          return;
+        }
+        validateCodeIntervalTime -= 1;
+        validateCodeText.value = `${validateCodeIntervalTime} s`;
+      }, 1000);
+    }
   };
 </script>
 
@@ -153,7 +184,7 @@
       line-height: 32px;
     }
 
-    &-password-actions {
+    &-validateCode-actions {
       display: flex;
       justify-content: space-between;
     }
