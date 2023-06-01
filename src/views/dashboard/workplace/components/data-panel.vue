@@ -13,7 +13,7 @@
         </a-avatar>
         <a-statistic
           :title="$t('workplace.allDevice')"
-          :value="373"
+          :value="data[0]"
           :precision="0"
           :value-from="0"
           animation
@@ -38,7 +38,7 @@
         </a-avatar>
         <a-statistic
           :title="$t('workplace.onlineDevice')"
-          :value="368"
+          :value="data[1]"
           :value-from="0"
           animation
           show-group-separator
@@ -104,7 +104,16 @@
   </a-grid>
 </template>
 
-<script lang="ts" setup></script>
+<script lang="ts" setup>
+  import { ref } from 'vue';
+  import { statisticsDeviceStatus } from '@/api/statistics';
+
+  const data = ref([0, 0, 0, 0]);
+
+  async function init() {
+    data.value = (await statisticsDeviceStatus()).data;
+  }
+</script>
 
 <style lang="less" scoped>
   .arco-grid.panel {

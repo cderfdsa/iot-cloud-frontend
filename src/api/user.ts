@@ -1,25 +1,46 @@
 import axios from 'axios';
 import type { RouteRecordNormalized } from 'vue-router';
-import { UserState } from '@/store/modules/user/types';
 
-export interface LoginData {
-  username: string;
-  password: string;
+//
+export interface ReqDtoLoginOrRegister {
+  email: string;
+  validateCode: string;
+  day30: number;
 }
-
-export interface LoginRes {
+export interface ResDtoLoginOrRegister {
   token: string;
+  email: string;
+  account: string;
+  user_id: number;
 }
-export function login(data: LoginData) {
-  return axios.post<LoginRes>('/api/user/login', data);
+export function loginOrRegisterForApi(data: ReqDtoLoginOrRegister) {
+  return axios.post<ResDtoLoginOrRegister>(
+    '/webapi/user/ns/loginOrRegister',
+    data
+  );
+}
+//
+export interface ReqDtoValidateCode {
+  email: string;
+}
+export interface ResDtoValidateCode {
+  email: string;
+}
+export function sendEmailForApi(data: ReqDtoValidateCode) {
+  return axios.post<ResDtoValidateCode>('/webapi/vc/ns/sendEmail', data);
+}
+//
+export interface ResDtoGetUser {
+  email: string;
+  account: string;
+  user_id: number;
+}
+export function getUserForApi() {
+  return axios.post<ResDtoGetUser>('/webapi/user/getUser');
 }
 
 export function logout() {
-  return axios.post<LoginRes>('/api/user/logout');
-}
-
-export function getUserInfo() {
-  return axios.post<UserState>('/api/user/info');
+  return axios.post<ResDtoLoginOrRegister>('/api/user/logout');
 }
 
 export function getMenuList() {

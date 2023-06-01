@@ -11,16 +11,18 @@
       @submit="handleSubmit"
     >
       <a-form-item
-        field="username"
-        :rules="[{ required: true, message: $t('login.form.userName.errMsg') }]"
+        field="email"
+        :rules="[
+          { required: true, message: '邮箱不能为空' },
+          {
+            match: /^[a-zA-Z0-9_-]+@[a-zA-Z0-9_-]+(.[a-zA-Z0-9_-]+)+$/,
+            message: '请输入邮箱',
+          },
+        ]"
         :validate-trigger="['change', 'blur']"
         hide-label
       >
-        <a-input
-          v-model="userInfo.username"
-          :placeholder="$t('login.form.userName.placeholder')"
-          allow-clear
-        >
+        <a-input v-model="userInfo.email" placeholder="邮箱：" allow-clear>
           <template #prefix>
             <icon-user />
           </template>
@@ -53,9 +55,9 @@
       <a-space :size="16" direction="vertical">
         <div class="login-form-validateCode-actions">
           <a-checkbox
-            checked="rememberValidateCode"
-            :model-value="loginConfig.rememberValidateCode"
-            @change="setRememberValidateCode"
+            checked="day30"
+            :model-value="loginConfig.day30"
+            @change="setDay30"
           >
             {{ $t('login.form.30daysNoLoginRequired') }}
           </a-checkbox>
@@ -77,7 +79,9 @@
   import { useStorage } from '@vueuse/core';
   import { useUserStore } from '@/store';
   import useLoading from '@/hooks/loading';
-  import type { LoginData } from '@/api/user';
+  import type { ReqDtoLoginOrRegister } from '@/api/user';
+  import { sendEmailForApi } from '@/api/user';
+  import { regexEmail } from '@/utils';
 
   const router = useRouter();
   const { t } = useI18n();
@@ -86,13 +90,15 @@
   const userStore = useUserStore();
 
   const loginConfig = useStorage('login-config', {
-    rememberValidateCode: true,
-    username: '',
+    email: '',
     validateCode: '',
+    day30: false,
   });
+
   const userInfo = reactive({
-    username: loginConfig.value.username,
+    email: loginConfig.value.email,
     validateCode: loginConfig.value.validateCode,
+    day30: loginConfig.value.day30,
   });
 
   const handleSubmit = async ({
@@ -106,7 +112,9 @@
     if (!errors) {
       setLoading(true);
       try {
-        await userStore.login(values as LoginData);
+        await userStore.loginOrRegisterForAction(
+          values as ReqDtoLoginOrRegister
+        );
         const { redirect, ...othersQuery } = router.currentRoute.value.query;
         router.push({
           name: (redirect as string) || 'Workplace',
@@ -115,14 +123,6 @@
           },
         });
         Message.success(t('login.form.login.success'));
-        const { rememberValidateCode } = loginConfig.value;
-        const { username, validateCode } = values;
-        // 实际生产环境需要进行加密存储。
-        // The actual production environment requires encrypted storage.
-        loginConfig.value.username = rememberValidateCode ? username : '';
-        loginConfig.value.validateCode = rememberValidateCode
-          ? validateCode
-          : '';
       } catch (err) {
         errorMessage.value = (err as Error).message;
       } finally {
@@ -130,21 +130,27 @@
       }
     }
   };
-  const setRememberValidateCode = (value: any) => {
-    loginConfig.value.rememberValidateCode = value;
+  const setDay30 = (value: any) => {
+    loginConfig.value.day30 = value;
   };
 
   const validateCodeText = ref('获取验证码');
   let validateCodeInterval: number;
   let validateCodeIntervalTime = 10;
   const handleValidateCodeButton = async () => {
+    if (!regexEmail.test(userInfo.email)) {
+      return;
+    }
     if (
       (validateCodeText.value === '获取验证码' ||
         validateCodeText.value === '重新获取') &&
       !validateCodeInterval
     ) {
+      //
+      await sendEmailForApi({ email: userInfo.email });
+      //
       validateCodeText.value = `${validateCodeIntervalTime} s`;
-      validateCodeInterval = setInterval(() => {
+      validateCodeInterval = window.setInterval(() => {
         if (validateCodeIntervalTime <= 0) {
           clearInterval(validateCodeInterval);
           validateCodeText.value = '重新获取';

@@ -22,4 +22,9 @@ export const regexUrl = new RegExp(
   'i'
 );
 
+export const regexEmail = new RegExp(
+  '^[a-zA-Z0-9_-]+@[a-zA-Z0-9_-]+(.[a-zA-Z0-9_-]+)+$',
+  'i'
+);
+
 export default null;
