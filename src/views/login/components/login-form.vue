@@ -136,7 +136,7 @@
 
   const validateCodeText = ref('获取验证码');
   let validateCodeInterval: number;
-  let validateCodeIntervalTime = 10;
+  let validateCodeIntervalTime = 120;
   const handleValidateCodeButton = async () => {
     if (!regexEmail.test(userInfo.email)) {
       return;
@@ -155,7 +155,7 @@
           clearInterval(validateCodeInterval);
           validateCodeText.value = '重新获取';
           validateCodeInterval = 0;
-          validateCodeIntervalTime = 10;
+          validateCodeIntervalTime = 120;
           return;
         }
         validateCodeIntervalTime -= 1;

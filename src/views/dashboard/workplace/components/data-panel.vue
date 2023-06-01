@@ -62,7 +62,7 @@
         </a-avatar>
         <a-statistic
           :title="$t('workplace.activeDevice')"
-          :value="8874"
+          :value="data[2]"
           :value-from="0"
           animation
           show-group-separator
@@ -87,7 +87,7 @@
         </a-avatar>
         <a-statistic
           :title="$t('workplace.alarmDevice')"
-          :value="2"
+          :value="data[3]"
           :precision="0"
           :value-from="0"
           animation
@@ -113,6 +113,8 @@
   async function init() {
     data.value = (await statisticsDeviceStatus()).data;
   }
+
+  init();
 </script>
 
 <style lang="less" scoped>

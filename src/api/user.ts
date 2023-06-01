@@ -39,10 +39,6 @@ export function getUserForApi() {
   return axios.post<ResDtoGetUser>('/webapi/user/getUser');
 }
 
-export function logout() {
-  return axios.post<ResDtoLoginOrRegister>('/api/user/logout');
-}
-
 export function getMenuList() {
   return axios.post<RouteRecordNormalized[]>('/api/user/menu');
 }

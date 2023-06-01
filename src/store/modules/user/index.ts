@@ -1,12 +1,12 @@
 import { defineStore } from 'pinia';
 import {
   loginOrRegisterForApi,
-  logout as userLogout,
   getUserForApi,
   ReqDtoLoginOrRegister,
 } from '@/api/user';
 import { setToken, clearToken } from '@/utils/auth';
 import { removeRouteListener } from '@/utils/route-listener';
+import { mqttInit } from '@/utils/mqtt-sdk';
 import { UserState } from './types';
 import useAppStore from '../app';
 
@@ -14,6 +14,7 @@ const useUserStore = defineStore('user', {
   state: (): UserState => ({
     account: undefined,
     email: undefined,
+    secret: undefined,
     role: '',
   }),
 
@@ -43,7 +44,6 @@ const useUserStore = defineStore('user', {
     // Get user's information
     async info() {
       const res = await getUserForApi();
-
       this.setInfo(res.data);
     },
 
@@ -66,10 +66,21 @@ const useUserStore = defineStore('user', {
     },
     // Logout
     async logout() {
-      try {
-        await userLogout();
-      } finally {
-        this.logoutCallBack();
+      this.logoutCallBack();
+    },
+    // init mqtt
+    initMqtt() {
+      console.log(import.meta.env.VITE_MQTT_BROKER_URL);
+      console.log(this.account);
+      console.log(this.secret);
+      if (import.meta.env.VITE_MQTT_BROKER_URL && this.account && this.secret) {
+        mqttInit(
+          import.meta.env.VITE_MQTT_BROKER_UR,
+          this.account,
+          this.secret
+        );
+      } else {
+        console.error('error');
       }
     },
   },

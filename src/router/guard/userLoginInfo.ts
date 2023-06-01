@@ -9,11 +9,12 @@ export default function setupUserLoginInfoGuard(router: Router) {
     NProgress.start();
     const userStore = useUserStore();
     if (isLogin()) {
-      if (userStore.role) {
+      if (userStore.account) {
         next();
       } else {
         try {
           await userStore.info();
+          await userStore.initMqtt();
           next();
         } catch (error) {
           await userStore.logout();
