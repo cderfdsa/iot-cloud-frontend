@@ -44,9 +44,11 @@ const useUserStore = defineStore('user', {
 
     // Get user's information
     async info() {
-      const res = await getUserForApi();
-      setUserInfo(res.data);
-      this.setInfo(res.data);
+      if (!this.account) {
+        const res = await getUserForApi();
+        setUserInfo(res.data);
+        this.setInfo(res.data);
+      }
     },
 
     // Login

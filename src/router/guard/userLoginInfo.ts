@@ -12,22 +12,20 @@ export default function setupUserLoginInfoGuard(router: Router) {
     const userStore = useUserStore();
     if (isLogin()) {
       try {
-        if (to.name === 'login') {
+        if (!userStore.userInfo.account) {
           await userStore.info();
           await userStore.initMqtt();
+        }
+        if (to.name === 'login') {
           next({
             name: 'Workplace',
             query: {} as LocationQueryRaw,
           });
-        } else if (to.name === 'Workplace') {
-          await userStore.info();
-          await userStore.initMqtt();
-          next();
         } else {
           next();
         }
       } catch (error) {
-        console.error(error);
+        // console.error(error);
         Message.error({
           content: `${error}`,
         });

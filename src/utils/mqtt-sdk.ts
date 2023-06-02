@@ -2,7 +2,7 @@ import * as MQTT from 'precompiled-mqtt';
 
 export function mqttInit(brokerUrl: string, account: string, secret: string) {
   //
-  console.log(`brokerUrl=${brokerUrl}`);
+  // console.log(`brokerUrl=${brokerUrl}`);
   //
   const client = MQTT.connect(brokerUrl, {
     clientId: `account:${account}`,
@@ -13,13 +13,14 @@ export function mqttInit(brokerUrl: string, account: string, secret: string) {
   });
   //
   client.on('connect', () => {
-    console.log('connected');
+    console.log(`mqtt broker ${brokerUrl} connected`);
+    client.subscribe(`/account/${account}/online/d`);
   });
   //
   client.on('message', (topic: any, message: { toString: () => any }) => {
-    console.log(topic);
-    // message is Buffer
-    console.log(message.toString());
+    console.log(
+      `mqtt broker ${brokerUrl} topic = ${topic} message = ${message}`
+    );
   });
 }
 
