@@ -5,7 +5,7 @@
     <div class="login-form-error-msg">{{ errorMessage }}</div>
     <a-form
       ref="loginForm"
-      :model="userInfo"
+      :model="userInfoForm"
       class="login-form"
       layout="vertical"
       @submit="handleSubmit"
@@ -22,7 +22,7 @@
         :validate-trigger="['change', 'blur']"
         hide-label
       >
-        <a-input v-model="userInfo.email" placeholder="邮箱：" allow-clear>
+        <a-input v-model="userInfoForm.email" placeholder="邮箱：" allow-clear>
           <template #prefix>
             <icon-user />
           </template>
@@ -37,7 +37,7 @@
         hide-label
       >
         <a-input
-          v-model="userInfo.validateCode"
+          v-model="userInfoForm.validateCode"
           :placeholder="$t('login.form.validateCode.placeholder')"
           allow-clear
         >
@@ -56,7 +56,7 @@
         <div class="login-form-validateCode-actions">
           <a-checkbox
             checked="day30"
-            :model-value="loginConfig.day30"
+            :model-value="userInfoForm.day30"
             @change="setDay30"
           >
             {{ $t('login.form.30daysNoLoginRequired') }}
@@ -76,12 +76,13 @@
   import { Message } from '@arco-design/web-vue';
   import { ValidatedError } from '@arco-design/web-vue/es/form/interface';
   import { useI18n } from 'vue-i18n';
-  import { useStorage } from '@vueuse/core';
+  // import { useStorage } from '@vueuse/core';
   import { useUserStore } from '@/store';
   import useLoading from '@/hooks/loading';
   import type { ReqDtoLoginOrRegister } from '@/api/user';
   import { sendEmailForApi } from '@/api/user';
   import { regexEmail } from '@/utils';
+  import { getLoginConfig, setLoginConfig } from '@/utils/auth';
 
   const router = useRouter();
   const { t } = useI18n();
@@ -89,16 +90,12 @@
   const { loading, setLoading } = useLoading();
   const userStore = useUserStore();
 
-  const loginConfig = useStorage('login-config', {
-    email: '',
-    validateCode: '',
-    day30: false,
-  });
+  const loginConfig = getLoginConfig();
 
-  const userInfo = reactive({
-    email: loginConfig.value.email,
-    validateCode: loginConfig.value.validateCode,
-    day30: loginConfig.value.day30,
+  const userInfoForm = reactive({
+    email: loginConfig.email,
+    validateCode: loginConfig.validateCode,
+    day30: loginConfig.day30,
   });
 
   const handleSubmit = async ({
@@ -112,9 +109,16 @@
     if (!errors) {
       setLoading(true);
       try {
+        //
         await userStore.loginOrRegisterForAction(
           values as ReqDtoLoginOrRegister
         );
+        //
+        setLoginConfig({
+          email: userInfoForm.email,
+          validateCode: userInfoForm.validateCode,
+          day30: userInfoForm.day30,
+        });
         const { redirect, ...othersQuery } = router.currentRoute.value.query;
         router.push({
           name: (redirect as string) || 'Workplace',
@@ -131,14 +135,14 @@
     }
   };
   const setDay30 = (value: any) => {
-    loginConfig.value.day30 = value;
+    userInfoForm.day30 = value;
   };
 
   const validateCodeText = ref('获取验证码');
   let validateCodeInterval: number;
   let validateCodeIntervalTime = 120;
   const handleValidateCodeButton = async () => {
-    if (!regexEmail.test(userInfo.email)) {
+    if (!regexEmail.test(userInfoForm.email)) {
       return;
     }
     if (
@@ -147,7 +151,7 @@
       !validateCodeInterval
     ) {
       //
-      await sendEmailForApi({ email: userInfo.email });
+      await sendEmailForApi({ email: userInfoForm.email });
       //
       validateCodeText.value = `${validateCodeIntervalTime} s`;
       validateCodeInterval = window.setInterval(() => {

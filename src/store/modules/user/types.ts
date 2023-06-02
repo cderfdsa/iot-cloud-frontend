@@ -4,4 +4,5 @@ export interface UserState {
   email?: string;
   secret?: string;
   role?: string;
+  avatar?: string;
 }

@@ -1,3 +1,4 @@
+import * as buffer from 'buffer';
 import { createApp } from 'vue';
 import ArcoVue from '@arco-design/web-vue';
 import ArcoVueIcon from '@arco-design/web-vue/es/icon';
@@ -13,6 +14,13 @@ import App from './App.vue';
 // https://arco.design/docs/designlab/use-theme-package
 import '@/assets/style/global.less';
 import '@/api/interceptor';
+
+if (typeof (window as any).global === 'undefined') {
+  (window as any).global = window;
+}
+if (typeof (window as any).Buffer === 'undefined') {
+  (window as any).Buffer = buffer.Buffer;
+}
 
 const app = createApp(App);
 

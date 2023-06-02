@@ -4,7 +4,7 @@ import {
   getUserForApi,
   ReqDtoLoginOrRegister,
 } from '@/api/user';
-import { setToken, clearToken } from '@/utils/auth';
+import { setToken, clearToken, setUserInfo, clearUserInfo } from '@/utils/auth';
 import { removeRouteListener } from '@/utils/route-listener';
 import { mqttInit } from '@/utils/mqtt-sdk';
 import { UserState } from './types';
@@ -16,6 +16,7 @@ const useUserStore = defineStore('user', {
     email: undefined,
     secret: undefined,
     role: '',
+    avatar: new URL('@/assets/logo.png', import.meta.url).href,
   }),
 
   getters: {
@@ -44,6 +45,7 @@ const useUserStore = defineStore('user', {
     // Get user's information
     async info() {
       const res = await getUserForApi();
+      setUserInfo(res.data);
       this.setInfo(res.data);
     },
 
@@ -61,6 +63,7 @@ const useUserStore = defineStore('user', {
       const appStore = useAppStore();
       this.resetInfo();
       clearToken();
+      clearUserInfo();
       removeRouteListener();
       appStore.clearServerMenu();
     },
@@ -70,17 +73,12 @@ const useUserStore = defineStore('user', {
     },
     // init mqtt
     initMqtt() {
-      console.log(import.meta.env.VITE_MQTT_BROKER_URL);
-      console.log(this.account);
-      console.log(this.secret);
       if (import.meta.env.VITE_MQTT_BROKER_URL && this.account && this.secret) {
         mqttInit(
-          import.meta.env.VITE_MQTT_BROKER_UR,
+          import.meta.env.VITE_MQTT_BROKER_URL,
           this.account,
           this.secret
         );
-      } else {
-        console.error('error');
       }
     },
   },
