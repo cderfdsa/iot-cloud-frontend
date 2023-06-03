@@ -13,7 +13,7 @@ const LIST: AppRouteRecordRaw = {
   },
   children: [
     {
-      path: 'all-device', // The midline path complies with SEO specifications
+      path: 'all-device',
       name: 'AllDevice',
       component: () => import('@/views/device/all-device/index.vue'),
       meta: {
@@ -23,12 +23,34 @@ const LIST: AppRouteRecordRaw = {
       },
     },
     {
-      path: 'device-type', // The midline path complies with SEO specifications
+      path: 'device-type',
       name: 'DeviceType',
       component: () => import('@/views/device/device-type/index.vue'),
       meta: {
         locale: 'menu.deviceManage.deviceType',
         requiresAuth: true,
+        roles: ['*'],
+      },
+    },
+    {
+      path: 'device-type-add',
+      name: 'DeviceTypeAdd',
+      component: () => import('@/views/device/device-type-add/index.vue'),
+      meta: {
+        locale: 'menu.deviceManage.deviceType',
+        requiresAuth: true,
+        hideInMenu: true,
+        roles: ['*'],
+      },
+    },
+    {
+      path: 'device-type-edit',
+      name: 'DeviceTypeEdit',
+      component: () => import('@/views/device/device-type-edit/index.vue'),
+      meta: {
+        locale: 'menu.deviceManage.deviceType',
+        requiresAuth: true,
+        hideInMenu: true,
         roles: ['*'],
       },
     },

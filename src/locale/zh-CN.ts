@@ -44,6 +44,8 @@ export default {
   'menu.deviceManage': '设备管理',
   'menu.deviceManage.allDevice': '所有设备',
   'menu.deviceManage.deviceType': '设备类型',
+  'menu.deviceManage.deviceType.add': '添加',
+  'menu.deviceManage.deviceType.edit': '编辑',
   'menu.faq': '常见问题',
   'navbar.docs': '文档中心',
   'navbar.action.locale': '切换为中文',

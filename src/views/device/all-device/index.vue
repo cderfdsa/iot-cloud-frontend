@@ -12,18 +12,11 @@
           >
             <a-row :gutter="16">
               <a-col :span="8">
-                <a-form-item field="number" label="设备名称">
+                <a-form-item field="searchKey" label="模糊搜索">
                   <a-input
-                    v-model="formModel.number"
-                    placeholder="请输入设备名称，支持模糊查询"
-                  />
-                </a-form-item>
-              </a-col>
-              <a-col :span="8">
-                <a-form-item field="name" label="设备标识">
-                  <a-input
-                    v-model="formModel.name"
-                    placeholder="请输入设备标识，支持模糊查询"
+                    v-model="formModel.searchKey"
+                    placeholder="请输入设备名称/标识符"
+                    allow-clear
                   />
                 </a-form-item>
               </a-col>
@@ -147,7 +140,7 @@
         @page-change="onPageChange"
       >
         <template #index="{ rowIndex }">
-          {{ rowIndex + 1 + (pagination.current - 1) * pagination.pageSize }}
+          {{ rowIndex + 1 + pagination.offset }}
         </template>
         <template #contentType="{ record }">
           <a-space>
@@ -183,10 +176,20 @@
         <template #filterType="{ record }">
           {{ $t(`searchTable.form.filterType.${record.filterType}`) }}
         </template>
-        <template #status="{ record }">
-          <span v-if="record.status === 'offline'" class="circle"></span>
+        <template #onlineStatus="{ record }">
+          <span v-if="record.onlineStatus === 2" class="circle"></span>
           <span v-else class="circle pass"></span>
-          {{ record.status == 'online' ? '在线' : '离线' }}
+          {{ record.onlineStatus == 1 ? '在线' : '离线' }}
+        </template>
+        <template #activeStatus="{ record }">
+          <span v-if="record.activeStatus === 0" class="circle"></span>
+          <span v-else class="circle pass"></span>
+          {{ record.activeStatusStr }}
+        </template>
+        <template #alarmStatus="{ record }">
+          <span v-if="record.alarmStatus === 0" class="circle"></span>
+          <span v-else class="circle pass"></span>
+          {{ record.alarmStatusStr }}
         </template>
         <template #operations>
           <a-button v-permission="['admin']" type="text" size="small">
@@ -202,7 +205,13 @@
   import { computed, ref, reactive, watch, nextTick } from 'vue';
   import { useI18n } from 'vue-i18n';
   import useLoading from '@/hooks/loading';
-  import { queryPolicyList, PolicyRecord, PolicyParams } from '@/api/list';
+  import { PolicyRecord, PolicyParams } from '@/api/list';
+  import {
+    devicePageForApi,
+    ReqDtoPageDeviceInfo,
+    ResDtoPageDeviceInfo,
+    ResDtoPageDeviceInfoPageInfo,
+  } from '@/api/device';
   import { Pagination } from '@/types/global';
   import type { SelectOptionData } from '@arco-design/web-vue/es/select/interface';
   import type { TableColumnData } from '@arco-design/web-vue/es/table/interface';
@@ -214,17 +223,13 @@
 
   const generateFormModel = () => {
     return {
-      number: '',
-      name: '',
-      contentType: '',
-      filterType: '',
-      createdTime: [],
+      searchKey: '',
       status: '',
     };
   };
   const { loading, setLoading } = useLoading(true);
   const { t } = useI18n();
-  const renderData = ref<PolicyRecord[]>([]);
+  const renderData = ref<ResDtoPageDeviceInfo[]>([]);
   const formModel = ref(generateFormModel());
   const cloneColumns = ref<Column[]>([]);
   const showColumns = ref<Column[]>([]);
@@ -232,8 +237,9 @@
   const size = ref<SizeProps>('medium');
 
   const basePagination: Pagination = {
-    current: 1,
-    pageSize: 20,
+    offset: 0,
+    rows: 10,
+    total: 0,
   };
   const pagination = reactive({
     ...basePagination,
@@ -263,34 +269,27 @@
       slotName: 'index',
     },
     {
-      title: t('searchTable.columns.number'),
-      dataIndex: 'number',
-    },
-    {
-      title: t('searchTable.columns.name'),
+      title: '设备名称',
       dataIndex: 'name',
     },
     {
-      title: t('searchTable.columns.contentType'),
-      dataIndex: 'contentType',
-      slotName: 'contentType',
+      title: '设备标识符',
+      dataIndex: 'code',
     },
     {
-      title: t('searchTable.columns.filterType'),
-      dataIndex: 'filterType',
+      title: '在线状态',
+      dataIndex: 'onlineStatus',
+      slotName: 'onlineStatus',
     },
     {
-      title: t('searchTable.columns.count'),
-      dataIndex: 'count',
+      title: '活跃状态',
+      dataIndex: 'activeStatus',
+      slotName: 'activeStatus',
     },
     {
-      title: t('searchTable.columns.createdTime'),
-      dataIndex: 'createdTime',
-    },
-    {
-      title: t('searchTable.columns.status'),
-      dataIndex: 'status',
-      slotName: 'status',
+      title: '报警状态',
+      dataIndex: 'alarmStatus',
+      slotName: 'alarmStatus',
     },
     {
       title: t('searchTable.columns.operations'),
@@ -301,21 +300,45 @@
   const statusOptions = computed<SelectOptionData[]>(() => [
     {
       label: '在线',
-      value: 'online',
+      value: 1,
     },
     {
       label: '离线',
-      value: 'offline',
+      value: 2,
     },
   ]);
+  //
   const fetchData = async (
-    params: PolicyParams = { current: 1, pageSize: 20 }
+    params: ReqDtoPageDeviceInfo = { offset: 0, rows: 10, searchKey: '' }
   ) => {
     setLoading(true);
     try {
-      const { data } = await queryPolicyList(params);
+      const { data } = await devicePageForApi(params);
+      data.list.forEach((item) => {
+        if (item.activeStatus === 0) {
+          item.activeStatusStr = '从未活跃';
+        } else if (item.activeStatus === 1) {
+          item.activeStatusStr = '5分钟内活跃';
+        } else if (item.activeStatus === 2) {
+          item.activeStatusStr = '1小时内活跃';
+        } else if (item.activeStatus === 3) {
+          item.activeStatusStr = '1天内活跃';
+        } else if (item.activeStatus === 4) {
+          item.activeStatusStr = '1天以上活跃';
+        }
+        if (item.alarmStatus === 1) {
+          item.alarmStatusStr = '正常';
+        } else if (item.alarmStatus === 2) {
+          item.alarmStatusStr = '普通报警';
+        } else if (item.alarmStatus === 3) {
+          item.alarmStatusStr = '重要报警';
+        } else if (item.alarmStatus === 4) {
+          item.alarmStatusStr = '紧急报警';
+        }
+      });
       renderData.value = data.list;
-      pagination.current = params.current;
+      pagination.offset = data.offset;
+      pagination.rows = data.rows;
       pagination.total = data.total;
     } catch (err) {
       // you can report use errorHandler or other
@@ -328,10 +351,14 @@
     fetchData({
       ...basePagination,
       ...formModel.value,
-    } as unknown as PolicyParams);
+    } as unknown as ReqDtoPageDeviceInfo);
   };
   const onPageChange = (current: number) => {
-    fetchData({ ...basePagination, current });
+    fetchData({
+      ...basePagination,
+      offset: (current - 1) * 10,
+      searchKey: formModel.value.searchKey,
+    });
   };
 
   fetchData();

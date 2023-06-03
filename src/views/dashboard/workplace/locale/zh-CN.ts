@@ -37,5 +37,5 @@ export default {
   'workplace.allDevice': '所有设备',
   'workplace.onlineDevice': '在线设备',
   'workplace.activeDevice': '活跃设备',
-  'workplace.alarmDevice': '告警设备',
+  'workplace.alarmDevice': '报警设备',
 };

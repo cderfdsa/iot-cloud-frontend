@@ -1,3 +1,6 @@
+// ----------------
+import { Message } from '@arco-design/web-vue';
+// ----------------
 type TargetContext = '_self' | '_parent' | '_blank' | '_top';
 
 export const openWindow = (
@@ -28,3 +31,7 @@ export const regexEmail = new RegExp(
 );
 
 export default null;
+
+export function opSuccess() {
+  Message.info({ content: '操作成功' });
+}
