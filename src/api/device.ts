@@ -95,3 +95,54 @@ export interface ResDtoRemove {
 export function deviceTypeRemoveForApi(data: ReqDtoRemove) {
   return axios.post<ResDtoRemove>('/webapi/device/type/remove', data);
 }
+//
+export interface ReqDtoGetDeviceType {
+  id: number;
+}
+export interface ResDtoGetDeviceType {
+  id: number;
+  name: string;
+  type: number;
+  communicationType: number;
+  protocolType: number;
+  protocolFormat: number;
+  busTimeValue: number;
+  busTimeUnit: string;
+}
+
+export function deviceTypeGetForApi(data: ReqDtoGetDeviceType) {
+  return axios.post<ResDtoGetDeviceType>('/webapi/device/type/get', data);
+}
+//
+export interface ReqDtoPageDeviceTypeAttribute {
+  searchKey: string;
+  offset: number;
+  rows: number;
+  relDeviceTypeId: number;
+}
+export interface ResDtoPageDeviceTypeAttribute {
+  id: number;
+  relDeviceTypeId: number;
+  relDeviceTypeName: string;
+  name: string;
+  code: string;
+  type: number;
+  typeStr: string;
+  dataType: number;
+  dataTypeStr: string;
+}
+export interface ResDtoPageDeviceTypeAttributePageInfo {
+  total: number;
+  offset: number;
+  rows: number;
+  list: ResDtoPageDeviceTypeAttribute[];
+}
+
+export function deviceTypeAttributePageForApi(
+  data: ReqDtoPageDeviceTypeAttribute
+) {
+  return axios.post<ResDtoPageDeviceTypeAttributePageInfo>(
+    '/webapi/device/type/attribute/page',
+    data
+  );
+}

@@ -125,3 +125,32 @@ export function protocolFormat(value: number) {
   }
   return '';
 }
+//
+export function attributeType(value: number) {
+  if (value === 1) {
+    return '设备上报';
+  }
+  if (value === 2) {
+    return '云端下发';
+  }
+  if (value === 3) {
+    return '设备云端共享';
+  }
+  if (value === 4) {
+    return '云端私有';
+  }
+  return '';
+}
+//
+export function attributeDataType(value: number) {
+  if (value === 1) {
+    return '数值';
+  }
+  if (value === 2) {
+    return '开关';
+  }
+  if (value === 3) {
+    return '文本';
+  }
+  return '';
+}

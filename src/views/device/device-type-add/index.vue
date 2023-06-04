@@ -114,7 +114,11 @@
               </a-typography-paragraph>
               <a-space direction="horizontal" size="large">
                 <a-select
-                  :options="dataForBus[formForDeviceType.busTimeUnit] || []"
+                  :options="
+                    formForDeviceType.busTimeUnit === 's'
+                      ? dataForBus.s
+                      : dataForBus.m || []
+                  "
                   v-model="formForDeviceType.busTimeValue"
                 />
                 <a-select

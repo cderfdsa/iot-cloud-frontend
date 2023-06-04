@@ -20,6 +20,7 @@
       <Menu v-if="topMenu" />
     </div>
     <ul class="right-side">
+      <!--搜索-->
       <!-- <li>
         <a-tooltip :content="$t('settings.search')">
           <a-button class="nav-btn" type="outline" :shape="'circle'">
@@ -29,7 +30,8 @@
           </a-button>
         </a-tooltip>
       </li> -->
-      <li>
+      <!--中英文-->
+      <!-- <li>
         <a-tooltip :content="$t('settings.language')">
           <a-button
             class="nav-btn"
@@ -57,7 +59,8 @@
             </a-doption>
           </template>
         </a-dropdown>
-      </li>
+      </li> -->
+      <!--主题-->
       <li>
         <a-tooltip
           :content="
@@ -79,7 +82,8 @@
           </a-button>
         </a-tooltip>
       </li>
-      <li>
+      <!--消息-->
+      <!-- <li>
         <a-tooltip :content="$t('settings.navbar.alerts')">
           <div class="message-box-trigger">
             <a-badge :count="9" dot>
@@ -105,7 +109,8 @@
             <message-box />
           </template>
         </a-popover>
-      </li>
+      </li> -->
+      <!--全屏-->
       <li>
         <a-tooltip
           :content="
@@ -127,7 +132,8 @@
           </a-button>
         </a-tooltip>
       </li>
-      <li>
+      <!--页面设置-->
+      <!-- <li>
         <a-tooltip :content="$t('settings.title')">
           <a-button
             class="nav-btn"
@@ -140,7 +146,8 @@
             </template>
           </a-button>
         </a-tooltip>
-      </li>
+      </li> -->
+      <!--头像-->
       <li>
         <a-dropdown trigger="click">
           <a-avatar

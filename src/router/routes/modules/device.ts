@@ -8,7 +8,7 @@ const LIST: AppRouteRecordRaw = {
   meta: {
     locale: 'menu.deviceManage',
     requiresAuth: true,
-    icon: 'icon-list',
+    icon: 'icon-wifi',
     order: 1,
   },
   children: [

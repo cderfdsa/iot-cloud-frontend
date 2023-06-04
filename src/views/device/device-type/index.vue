@@ -66,55 +66,6 @@
               ><icon-refresh size="18"
             /></div>
           </a-tooltip>
-          <a-dropdown @select="handleSelectDensity">
-            <a-tooltip :content="$t('searchTable.actions.density')">
-              <div class="action-icon"><icon-line-height size="18" /></div>
-            </a-tooltip>
-            <template #content>
-              <a-doption
-                v-for="item in densityList"
-                :key="item.value"
-                :value="item.value"
-                :class="{ active: item.value === size }"
-              >
-                <span>{{ item.name }}</span>
-              </a-doption>
-            </template>
-          </a-dropdown>
-          <a-tooltip :content="$t('searchTable.actions.columnSetting')">
-            <a-popover
-              trigger="click"
-              position="bl"
-              @popup-visible-change="popupVisibleChange"
-            >
-              <div class="action-icon"><icon-settings size="18" /></div>
-              <template #content>
-                <div id="tableSetting">
-                  <div
-                    v-for="(item, index) in showColumns"
-                    :key="item.dataIndex"
-                    class="setting"
-                  >
-                    <div style="margin-right: 4px; cursor: move">
-                      <icon-drag-arrow />
-                    </div>
-                    <div>
-                      <a-checkbox
-                        v-model="item.checked"
-                        @change="
-                          handleChange($event, item as TableColumnData, index)
-                        "
-                      >
-                      </a-checkbox>
-                    </div>
-                    <div class="title">
-                      {{ item.title === '#' ? '序列号' : item.title }}
-                    </div>
-                  </div>
-                </div>
-              </template>
-            </a-popover>
-          </a-tooltip>
         </a-col>
       </a-row>
       <!-- 列表区域-->
@@ -131,33 +82,11 @@
         <template #index="{ rowIndex }">
           {{ rowIndex + 1 + pagination.offset }}
         </template>
-        <template #onlineStatus="{ record }">
-          <span v-if="record.onlineStatus === 2" class="circle"></span>
-          <span v-else class="circle pass"></span>
-          {{ record.onlineStatus == 1 ? '在线' : '离线' }}
-        </template>
-        <template #activeStatus="{ record }">
-          <span v-if="record.activeStatus === 0" class="circle"></span>
-          <span v-else class="circle pass"></span>
-          {{ record.activeStatusStr }}
-        </template>
-        <template #alarmStatus="{ record }">
-          <span v-if="record.alarmStatus === 0" class="circle"></span>
-          <span v-else class="circle pass"></span>
-          {{ record.alarmStatusStr }}
-        </template>
-        <template #operations="{ record }">
-          <a-button type="text" size="small" @click="clickForEdit(record)">
-            编辑
-          </a-button>
-          <a-button
-            type="text"
-            size="small"
-            status="danger"
-            @click="clickForDelete(record)"
+        <template #name="{ record }">
+          <router-link
+            :to="{ name: 'DeviceTypeEdit', query: { id: record.id } }"
+            >{{ record.name }}</router-link
           >
-            删除
-          </a-button>
         </template>
       </a-table>
     </a-card>
@@ -169,7 +98,6 @@
   import { useI18n } from 'vue-i18n';
   import { useRouter } from 'vue-router';
   import useLoading from '@/hooks/loading';
-  import { PolicyRecord, PolicyParams } from '@/api/list';
   import {
     deviceTypePageForApi,
     ReqDtoPageDeviceType,
@@ -245,6 +173,7 @@
     {
       title: '类型名称',
       dataIndex: 'name',
+      slotName: 'name',
     },
     {
       title: '核心类型',
@@ -265,11 +194,6 @@
     {
       title: '轮询时间',
       dataIndex: 'busTimeStr',
-    },
-    {
-      title: t('searchTable.columns.operations'),
-      dataIndex: 'operations',
-      slotName: 'operations',
     },
   ]);
   const statusOptions = computed<SelectOptionData[]>(() => [
@@ -398,7 +322,12 @@
     router.push({ name: 'DeviceTypeAdd' });
   };
   const clickForEdit = (record: any) => {
-    router.push({ name: 'DeviceTypeEdit' });
+    router.push({
+      name: 'DeviceTypeEdit',
+      query: {
+        id: record.id,
+      },
+    });
   };
   const clickForDelete = async (record: any) => {
     await deviceTypeRemoveForApi({ id: record.id } as ReqDtoRemove);

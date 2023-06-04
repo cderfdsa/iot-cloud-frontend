@@ -40,18 +40,22 @@
     </div>
     <div class="right-side">
       <a-grid :cols="24" :row-gap="16">
-        <a-grid-item :span="24">
+        <!--快捷操作+最近访问-->
+        <!-- <a-grid-item :span="24">
           <div class="panel moduler-wrap">
             <QuickOperation />
             <RecentlyVisited />
           </div>
-        </a-grid-item>
+        </a-grid-item> -->
+        <!--广告轮播图-->
         <a-grid-item class="panel" :span="24">
           <Carousel />
         </a-grid-item>
+        <!--公告-->
         <a-grid-item class="panel" :span="24">
           <Announcement />
         </a-grid-item>
+        <!--帮助文档-->
         <a-grid-item class="panel" :span="24">
           <Docs />
         </a-grid-item>
