@@ -15,9 +15,9 @@
       {{ rowIndex + 1 + paginationForObjects.offset }}
     </template>
     <template #onlineStatus="{ record }">
-      <span v-if="record.onlineStatus === 2" class="circle"></span>
-      <span v-else class="circle pass"></span>
-      {{ record.onlineStatus == 1 ? '在线' : '离线' }}
+      <span v-if="record.onlineStatus === 1" class="circle pass"></span>
+      <span v-else class="circle"></span>
+      {{ record.onlineStatus === 1 ? '在线' : '离线' }}
     </template>
     <template #activeStatus="{ record }">
       <span v-if="record.activeStatus === 0" class="circle"></span>
@@ -25,8 +25,8 @@
       {{ record.activeStatusStr }}
     </template>
     <template #alarmStatus="{ record }">
-      <span v-if="record.alarmStatus === 0" class="circle"></span>
-      <span v-else class="circle pass"></span>
+      <span v-if="record.alarmStatus === 1" class="circle"></span>
+      <span v-else class="circle alarm"></span>
       {{ record.alarmStatusStr }}
     </template>
   </a-table>
@@ -34,7 +34,7 @@
 //--------------------------------------------------------------------------
 <script lang="ts" setup>
   // ============= 三方依赖
-  import { computed, ref, reactive, watch, nextTick } from 'vue';
+  import { computed, ref, reactive, watch, onMounted } from 'vue';
   import type { TableColumnData } from '@arco-design/web-vue/es/table/interface';
   import { useRouter, useRoute } from 'vue-router';
   import { useI18n } from 'vue-i18n';
@@ -46,12 +46,15 @@
   } from '@/api/device';
   import useLoading from '@/hooks/loading';
   import { Pagination } from '@/types/global';
+  import { useUserStore } from '@/store';
+  import { OnlineMessage } from '@/utils/mqtt-sdk';
   // ============= types
 
   // =============
   const router = useRouter();
   const route = useRoute();
   const { t } = useI18n();
+  const userStore = useUserStore();
   const columnsForObjects = computed<TableColumnData[]>(() => [
     {
       title: t('searchTable.columns.index'),
@@ -162,6 +165,26 @@
     rows: 10,
     searchKey: '',
     relDeviceTypeId: props.relDeviceTypeId,
+  });
+  // ============= on
+  onMounted(() => {
+    if (userStore.mqttInstance) {
+      userStore.mqttInstance.addCallbackForDeviceOnline({
+        key: 'onlineForDeviceTypeRelDevices',
+        callback: (payloads: OnlineMessage[]) => {
+          payloads.forEach((item) => {
+            const oneItem = renderDataForObjects.value.find(
+              (innerItem) => item.deviceCode === innerItem.code
+            );
+            if (oneItem) {
+              oneItem.onlineStatus = item.onOrOff;
+            }
+          });
+        },
+      });
+    } else {
+      console.error(`addCallbackForDeviceOnline error`);
+    }
   });
 </script>
 //--------------------------------------------------------------------------

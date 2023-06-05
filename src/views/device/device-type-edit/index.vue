@@ -61,7 +61,11 @@
           title="设置"
           style="padding-left: 20px; padding-right: 20px"
         >
-          Content of Tab Panel 2
+          <DeviceTypeFormForAddEdit
+            :edit="true"
+            :edit-obj="infoForDeviceType"
+            v-if="infoForDeviceType.id !== 0"
+          />
         </a-tab-pane>
       </a-tabs>
     </div>
@@ -87,6 +91,7 @@
   import TableForDevices from './components/table-for-devices.vue';
   import TableForAttributes from './components/table-for-attributes.vue';
   import TableForModbus from './components/table-for-modbus.vue';
+  import DeviceTypeFormForAddEdit from '../device-type-add/components/device-type-form-for-add-edit.vue';
   // ============= types
   // ============= const
   const router = useRouter();
@@ -98,7 +103,8 @@
 
   // ============= ref reactive
   const infoForDeviceType = reactive({
-    name: '杀杀杀',
+    id: 0,
+    name: 'aaa',
     type: 1,
     typeStr: '',
     communicationType: 101,
@@ -125,6 +131,7 @@
     const deviceTypeGetForApiForResult = await deviceTypeGetForApi({
       id: route.query.id as unknown,
     } as ReqDtoGetDeviceType);
+    infoForDeviceType.id = deviceTypeGetForApiForResult.data.id;
     infoForDeviceType.name = deviceTypeGetForApiForResult.data.name;
     //
     infoForDeviceType.type = deviceTypeGetForApiForResult.data.type;

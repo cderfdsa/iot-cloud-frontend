@@ -1,9 +1,13 @@
 import * as MQTT from 'precompiled-mqtt';
 import type { InjectionKey } from 'vue';
 //
+export declare type OnlineMessage = {
+  deviceCode: string;
+  onOrOff: number;
+};
 export declare type OnMessageCallbackForDeviceOnline = {
   key: any;
-  callback: (payload: string) => void;
+  callback: (payloads: OnlineMessage[]) => void;
 };
 //
 export function mqttInit(brokerUrl: string, account: string, secret: string) {
@@ -11,6 +15,7 @@ export function mqttInit(brokerUrl: string, account: string, secret: string) {
   // console.log(`brokerUrl=${brokerUrl}`);
   //
   const callbackForDeviceOnline: OnMessageCallbackForDeviceOnline[] = [];
+  const deviceOnlineMessages: OnlineMessage[] = [];
   //
   const mqttClient = MQTT.connect(brokerUrl, {
     clientId: `account:${account}:${new Date().getTime()}`,
@@ -30,10 +35,14 @@ export function mqttInit(brokerUrl: string, account: string, secret: string) {
       `mqtt broker ${brokerUrl} topic = ${topic} message = ${message}`
     );
     if (topic === `/account/${account}/online/d`) {
-      console.log(callbackForDeviceOnline);
-      callbackForDeviceOnline.forEach((item) =>
-        item.callback(message as string)
-      );
+      // console.log(callbackForDeviceOnline);
+      deviceOnlineMessages.push(JSON.parse(message.toString()));
+      setTimeout(() => {
+        callbackForDeviceOnline.forEach((item) =>
+          item.callback(deviceOnlineMessages)
+        );
+        deviceOnlineMessages.splice(0, deviceOnlineMessages.length);
+      }, 1000);
     }
   });
 

@@ -55,6 +55,7 @@
   import TabBar from '@/components/tab-bar/index.vue';
   import usePermission from '@/hooks/permission';
   import useResponsive from '@/hooks/responsive';
+  import { OnlineMessage } from '@/utils/mqtt-sdk';
   import PageLayout from './page-layout.vue';
 
   const isInit = ref(false);
@@ -106,25 +107,31 @@
     // console.log('default-layout ---- onMounted');
     if (userStore.mqttInstance) {
       userStore.mqttInstance.addCallbackForDeviceOnline({
-        key: 'online',
-        callback: (payload: string) => {
-          console.log(`addCallbackForDeviceOnline:${payload}`);
-          const onlineObj = JSON.parse(payload) as {
-            deviceCode: string;
-            onOrOff: number;
-          };
-          if (onlineObj.onOrOff === 1) {
+        key: 'onlineForNotification',
+        callback: (payloads: OnlineMessage[]) => {
+          const onlines: string[] = [];
+          const offlines: string[] = [];
+          payloads.forEach((item) => {
+            if (item.onOrOff === 1) {
+              onlines.push(item.deviceCode);
+            } else {
+              offlines.push(item.deviceCode);
+            }
+          });
+          if (onlines.length > 0) {
             Notification.success({
               title: '设备上线通知',
-              content: `${onlineObj.deviceCode}`,
-            });
-          } else {
-            Notification.warning({
-              title: '设备下线通知',
-              content: `${onlineObj.deviceCode}`,
+              content: `${onlines.join('、')}`,
+              duration: 1000,
             });
           }
-          console.log(`over addCallbackForDeviceOnline:${payload}`);
+          if (offlines.length > 0) {
+            Notification.warning({
+              title: '设备下线通知',
+              content: `${offlines.join('、')}`,
+              duration: 1000,
+            });
+          }
         },
       });
     } else {
