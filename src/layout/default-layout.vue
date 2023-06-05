@@ -109,10 +109,21 @@
         key: 'online',
         callback: (payload: string) => {
           console.log(`addCallbackForDeviceOnline:${payload}`);
-          Notification.info({
-            title: 'Notification',
-            content: 'This is a notification!',
-          });
+          const onlineObj = JSON.parse(payload) as {
+            deviceCode: string;
+            onOrOff: number;
+          };
+          if (onlineObj.onOrOff === 1) {
+            Notification.success({
+              title: '设备上线通知',
+              content: `${onlineObj.deviceCode}`,
+            });
+          } else {
+            Notification.warning({
+              title: '设备下线通知',
+              content: `${onlineObj.deviceCode}`,
+            });
+          }
           console.log(`over addCallbackForDeviceOnline:${payload}`);
         },
       });
