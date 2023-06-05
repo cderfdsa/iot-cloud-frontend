@@ -5,6 +5,7 @@ export interface ReqDtoPageDeviceInfo {
   searchKey: string;
   offset: number;
   rows: number;
+  relDeviceTypeId?: number;
 }
 export interface ResDtoPageDeviceInfo {
   id: number;
@@ -143,6 +144,41 @@ export function deviceTypeAttributePageForApi(
 ) {
   return axios.post<ResDtoPageDeviceTypeAttributePageInfo>(
     '/webapi/device/type/attribute/page',
+    data
+  );
+}
+// modbus
+export interface ReqDtoPageDeviceTypeAttributeModbus {
+  searchKey: string;
+  offset: number;
+  rows: number;
+  relDeviceTypeId: number;
+}
+export interface ResDtoPageDeviceTypeAttributeModbus {
+  id: number;
+  relDeviceTypeId: number;
+  relDeviceTypeName: string;
+  relDeviceTypeAttributeId: number;
+  relDeviceTypeAttributeName: string;
+  slaveAddress: number;
+  registerAddress: number;
+  readWriteType: number;
+  readWriteTypeStr: string;
+  dataType: number;
+  dataTypeStr: string;
+}
+export interface ResDtoPageDeviceTypeAttributeModbusPageInfo {
+  total: number;
+  offset: number;
+  rows: number;
+  list: ResDtoPageDeviceTypeAttributeModbus[];
+}
+
+export function deviceTypeAttributeModbusPageForApi(
+  data: ReqDtoPageDeviceTypeAttributeModbus
+) {
+  return axios.post<ResDtoPageDeviceTypeAttributeModbusPageInfo>(
+    '/webapi/device/type/attribute/modbus/page',
     data
   );
 }

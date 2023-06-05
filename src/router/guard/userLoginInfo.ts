@@ -13,6 +13,7 @@ export default function setupUserLoginInfoGuard(router: Router) {
     if (isLogin()) {
       try {
         if (!userStore.userInfo.account) {
+          console.log('----2');
           await userStore.info();
           await userStore.initMqtt();
         }

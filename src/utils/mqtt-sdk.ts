@@ -1,27 +1,93 @@
 import * as MQTT from 'precompiled-mqtt';
-
+import type { InjectionKey } from 'vue';
+//
+export declare type OnMessageCallbackForDeviceOnline = {
+  key: any;
+  callback: (payload: string) => void;
+};
+//
 export function mqttInit(brokerUrl: string, account: string, secret: string) {
   //
   // console.log(`brokerUrl=${brokerUrl}`);
   //
-  const client = MQTT.connect(brokerUrl, {
-    clientId: `account:${account}`,
+  const callbackForDeviceOnline: OnMessageCallbackForDeviceOnline[] = [];
+  //
+  const mqttClient = MQTT.connect(brokerUrl, {
+    clientId: `account:${account}:${new Date().getTime()}`,
+    // clientId: `account:${account}`,
     username: account,
     password: secret,
-    port: 8000,
-    host: '127.0.0.1',
   });
   //
-  client.on('connect', () => {
-    console.log(`mqtt broker ${brokerUrl} connected`);
-    client.subscribe(`/account/${account}/online/d`);
+  mqttClient.on('connect', () => {
+    console.log(`mqtt broker ${brokerUrl} connected account = ${account}`);
+    mqttClient.subscribe(`/account/${account}/online/d`);
+    mqttClient.subscribe(`/account/${account}/alarm/d`);
   });
   //
-  client.on('message', (topic: any, message: { toString: () => any }) => {
+  mqttClient.on('message', (topic: any, message: { toString: () => any }) => {
     console.log(
       `mqtt broker ${brokerUrl} topic = ${topic} message = ${message}`
     );
+    if (topic === `/account/${account}/online/d`) {
+      console.log(callbackForDeviceOnline);
+      callbackForDeviceOnline.forEach((item) =>
+        item.callback(message as string)
+      );
+    }
   });
-}
 
+  //
+  return {
+    //
+    mqttSubscribeDeviceAttributesDown(deviceCode: string) {
+      mqttClient.subscribe(`/account/${account}/${deviceCode}/attributes/d`);
+    },
+    //
+    mqttUnsubscribeDeviceAttributesDown(deviceCode: string) {
+      mqttClient.unsubscribe(`/account/${account}/${deviceCode}/attributes/d`);
+    },
+    //
+    mqttPublishDeviceAttributesUp(deviceCode: string, message: string) {
+      mqttClient.publish(
+        `/account/${account}/${deviceCode}/attributes/u`,
+        message
+      );
+    },
+    //
+    mqttSubscribeDeviceAttributesResDown(deviceCode: string) {
+      mqttClient.subscribe(
+        `/account/${account}/${deviceCode}/attributes/res/d`
+      );
+    },
+    //
+    mqttUnsubscribeDeviceAttributesResDown(deviceCode: string) {
+      mqttClient.unsubscribe(
+        `/account/${account}/${deviceCode}/attributes/res/d`
+      );
+    },
+    //
+    mqttPublishDeviceAttributesReqUp(deviceCode: string, message: string) {
+      mqttClient.publish(
+        `/account/${account}/${deviceCode}/attributes/req/u`,
+        message
+      );
+    },
+    //
+    addCallbackForDeviceOnline(callbackItem: OnMessageCallbackForDeviceOnline) {
+      console.log('addCallbackForDeviceOnline');
+      const index = callbackForDeviceOnline.findIndex(
+        (item) => item.key === callbackItem.key
+      );
+      if (index === -1) {
+        callbackForDeviceOnline.push(callbackItem);
+      }
+    },
+  };
+}
+export declare type MqttIns = {
+  addCallbackForDeviceOnline: (
+    callbackItem: OnMessageCallbackForDeviceOnline
+  ) => void;
+};
 export default null;

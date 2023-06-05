@@ -47,6 +47,7 @@
 <script lang="ts" setup>
   import { ref, computed, watch, provide, onMounted } from 'vue';
   import { useRouter, useRoute } from 'vue-router';
+  import { Notification } from '@arco-design/web-vue';
   import { useAppStore, useUserStore } from '@/store';
   import NavBar from '@/components/navbar/index.vue';
   import Menu from '@/components/menu/index.vue';
@@ -102,6 +103,22 @@
   });
   onMounted(() => {
     isInit.value = true;
+    // console.log('default-layout ---- onMounted');
+    if (userStore.mqttInstance) {
+      userStore.mqttInstance.addCallbackForDeviceOnline({
+        key: 'online',
+        callback: (payload: string) => {
+          console.log(`addCallbackForDeviceOnline:${payload}`);
+          Notification.info({
+            title: 'Notification',
+            content: 'This is a notification!',
+          });
+          console.log(`over addCallbackForDeviceOnline:${payload}`);
+        },
+      });
+    } else {
+      console.error(`addCallbackForDeviceOnline error`);
+    }
   });
 </script>
 

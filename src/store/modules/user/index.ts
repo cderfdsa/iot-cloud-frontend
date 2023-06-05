@@ -1,3 +1,4 @@
+import { provide } from 'vue';
 import { defineStore } from 'pinia';
 import {
   loginOrRegisterForApi,
@@ -17,6 +18,7 @@ const useUserStore = defineStore('user', {
     secret: undefined,
     role: '',
     avatar: new URL('@/assets/logo.png', import.meta.url).href,
+    mqttInstance: undefined,
   }),
 
   getters: {
@@ -76,7 +78,7 @@ const useUserStore = defineStore('user', {
     // init mqtt
     initMqtt() {
       if (import.meta.env.VITE_MQTT_BROKER_URL && this.account && this.secret) {
-        mqttInit(
+        this.mqttInstance = mqttInit(
           import.meta.env.VITE_MQTT_BROKER_URL,
           this.account,
           this.secret

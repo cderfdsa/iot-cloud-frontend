@@ -157,15 +157,15 @@
             <img alt="avatar" :src="avatar" />
           </a-avatar>
           <template #content>
-            <a-doption>
+            <!-- <a-doption>
               <a-space @click="switchRoles">
                 <icon-tag />
                 <span>
                   {{ $t('messageBox.switchRoles') }}
                 </span>
               </a-space>
-            </a-doption>
-            <a-doption>
+            </a-doption> -->
+            <!-- <a-doption>
               <a-space @click="$router.push({ name: 'Info' })">
                 <icon-user />
                 <span>
@@ -180,7 +180,7 @@
                   {{ $t('messageBox.userSettings') }}
                 </span>
               </a-space>
-            </a-doption>
+            </a-doption> -->
             <a-doption>
               <a-space @click="handleLogout">
                 <icon-export />
@@ -197,6 +197,7 @@
 </template>
 
 <script lang="ts" setup>
+  /* eslint-disable */
   import { computed, ref, inject } from 'vue';
   import { Message } from '@arco-design/web-vue';
   import { useDark, useToggle, useFullscreen } from '@vueuse/core';

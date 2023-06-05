@@ -35,7 +35,7 @@
           style="padding-left: 20px; padding-right: 20px"
         >
           <!-- 列表区域-->
-          <TableForDevices />
+          <TableForDevices :rel-device-type-id="deviceTypeId" />
         </a-tab-pane>
         <a-tab-pane
           key="2"
@@ -43,9 +43,7 @@
           style="padding-left: 20px; padding-right: 20px"
         >
           <!-- 列表区域-->
-          <TableForAttributes
-            :rel-device-type-id="parseInt(route.query.id) as unknown as number"
-          ></TableForAttributes>
+          <TableForAttributes :rel-device-type-id="deviceTypeId" />
         </a-tab-pane>
         <a-tab-pane
           key="3"
@@ -56,7 +54,7 @@
           title="Modbus配置"
           style="padding-left: 20px; padding-right: 20px"
         >
-          Content of Tab Panel 2
+          <TableForModbus :rel-device-type-id="deviceTypeId" />
         </a-tab-pane>
         <a-tab-pane
           key="4"
@@ -84,23 +82,19 @@
     protocolType,
     protocolFormat,
   } from '@/utils/number-to-string';
-  import { opSuccess } from '@/utils';
-  import {
-    deviceTypeGetForApi,
-    ReqDtoGetDeviceType,
-    ResDtoGetDeviceType,
-    ResDtoPageDeviceInfo,
-    ReqDtoPageDeviceInfo,
-    devicePageForApi,
-  } from '@/api/device';
+  import { deviceTypeGetForApi, ReqDtoGetDeviceType } from '@/api/device';
 
   import TableForDevices from './components/table-for-devices.vue';
   import TableForAttributes from './components/table-for-attributes.vue';
+  import TableForModbus from './components/table-for-modbus.vue';
   // ============= types
-  // =============
+  // ============= const
   const router = useRouter();
   const route = useRoute();
   const { t } = useI18n();
+  const deviceTypeId: number = route.query.id
+    ? parseInt(route.query.id as string, 10)
+    : 0;
 
   // ============= ref reactive
   const infoForDeviceType = reactive({

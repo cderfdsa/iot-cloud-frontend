@@ -14,21 +14,6 @@
     <template #index="{ rowIndex }">
       {{ rowIndex + 1 + paginationForObjects.offset }}
     </template>
-    <template #onlineStatus="{ record }">
-      <span v-if="record.onlineStatus === 2" class="circle"></span>
-      <span v-else class="circle pass"></span>
-      {{ record.onlineStatus == 1 ? '在线' : '离线' }}
-    </template>
-    <template #activeStatus="{ record }">
-      <span v-if="record.activeStatus === 0" class="circle"></span>
-      <span v-else class="circle pass"></span>
-      {{ record.activeStatusStr }}
-    </template>
-    <template #alarmStatus="{ record }">
-      <span v-if="record.alarmStatus === 0" class="circle"></span>
-      <span v-else class="circle pass"></span>
-      {{ record.alarmStatusStr }}
-    </template>
   </a-table>
 </template>
 //--------------------------------------------------------------------------
@@ -40,12 +25,14 @@
   import { useI18n } from 'vue-i18n';
   // ============= 源码依赖
   import {
-    ResDtoPageDeviceInfo,
-    ReqDtoPageDeviceInfo,
-    devicePageForApi,
+    ReqDtoPageDeviceTypeAttributeModbus,
+    ResDtoPageDeviceTypeAttributeModbus,
+    deviceTypeAttributeModbusPageForApi,
   } from '@/api/device';
   import useLoading from '@/hooks/loading';
   import { Pagination } from '@/types/global';
+  import * as NumberToString from '@/utils/number-to-string';
+  import { number } from 'echarts';
   // ============= types
 
   // =============
@@ -59,29 +46,27 @@
       slotName: 'index',
     },
     {
-      title: '设备名称',
-      dataIndex: 'name',
+      title: '属性名称',
+      dataIndex: 'relDeviceTypeAttributeName',
     },
     {
-      title: '设备标识符',
-      dataIndex: 'code',
+      title: '从机地址',
+      dataIndex: 'slaveAddress',
     },
     {
-      title: '在线状态',
-      dataIndex: 'onlineStatus',
-      slotName: 'onlineStatus',
+      title: '寄存器地址',
+      dataIndex: 'registerAddress',
     },
     {
-      title: '活跃状态',
-      dataIndex: 'activeStatus',
-      slotName: 'activeStatus',
+      title: '读写类型',
+      dataIndex: 'readWriteTypeStr',
     },
     {
-      title: '报警状态',
-      dataIndex: 'alarmStatus',
-      slotName: 'alarmStatus',
+      title: '数据类型',
+      dataIndex: 'dataTypeStr',
     },
   ]);
+
   // ============= props
   const props = defineProps({
     relDeviceTypeId: {
@@ -100,13 +85,13 @@
   const paginationForObjects = reactive({
     ...basePaginationForObjects,
   });
-  const renderDataForObjects = ref<ResDtoPageDeviceInfo[]>([]);
+  const renderDataForObjects = ref<ResDtoPageDeviceTypeAttributeModbus[]>([]);
   // --- table devices end
   // ============= @event
 
   // ============= step functions
   const fetchDataForObjects = async (
-    params: ReqDtoPageDeviceInfo = {
+    params: ReqDtoPageDeviceTypeAttributeModbus = {
       offset: 0,
       rows: 10,
       searchKey: '',
@@ -115,28 +100,12 @@
   ) => {
     loadingForObjects.setLoading(true);
     try {
-      const { data } = await devicePageForApi(params);
+      const { data } = await deviceTypeAttributeModbusPageForApi(params);
       data.list.forEach((item) => {
-        if (item.activeStatus === 0) {
-          item.activeStatusStr = '从未活跃';
-        } else if (item.activeStatus === 1) {
-          item.activeStatusStr = '5分钟内活跃';
-        } else if (item.activeStatus === 2) {
-          item.activeStatusStr = '1小时内活跃';
-        } else if (item.activeStatus === 3) {
-          item.activeStatusStr = '1天内活跃';
-        } else if (item.activeStatus === 4) {
-          item.activeStatusStr = '1天以上活跃';
-        }
-        if (item.alarmStatus === 1) {
-          item.alarmStatusStr = '正常';
-        } else if (item.alarmStatus === 2) {
-          item.alarmStatusStr = '普通报警';
-        } else if (item.alarmStatus === 3) {
-          item.alarmStatusStr = '重要报警';
-        } else if (item.alarmStatus === 4) {
-          item.alarmStatusStr = '紧急报警';
-        }
+        item.readWriteTypeStr = NumberToString.readWriteType(
+          item.readWriteType
+        );
+        item.dataTypeStr = NumberToString.modbusDataType(item.dataType);
       });
       renderDataForObjects.value = data.list;
       paginationForObjects.offset = data.offset;
@@ -167,7 +136,7 @@
 //--------------------------------------------------------------------------
 <script lang="ts">
   export default {
-    name: 'TableForDevices',
+    name: 'TableForModbus',
   };
 </script>
 //--------------------------------------------------------------------------

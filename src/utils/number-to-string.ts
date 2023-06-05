@@ -154,3 +154,32 @@ export function attributeDataType(value: number) {
   }
   return '';
 }
+//
+export function readWriteType(value: number) {
+  if (value === 1) {
+    return '只读';
+  }
+  if (value === 2) {
+    return '读写';
+  }
+  return '';
+}
+//
+export function modbusDataType(value: number) {
+  if (value === 0) {
+    return '位';
+  }
+  if (value === 1) {
+    return '16位无符号整数';
+  }
+  if (value === 2) {
+    return '16位有符号整数';
+  }
+  if (value === 3) {
+    return '32位无符号整数';
+  }
+  if (value === 4) {
+    return '32位有符号整数';
+  }
+  return '';
+}

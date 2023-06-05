@@ -205,12 +205,10 @@
   import { computed, ref, reactive, watch, nextTick } from 'vue';
   import { useI18n } from 'vue-i18n';
   import useLoading from '@/hooks/loading';
-  import { PolicyRecord, PolicyParams } from '@/api/list';
   import {
     devicePageForApi,
     ReqDtoPageDeviceInfo,
     ResDtoPageDeviceInfo,
-    ResDtoPageDeviceInfoPageInfo,
   } from '@/api/device';
   import { Pagination } from '@/types/global';
   import type { SelectOptionData } from '@arco-design/web-vue/es/select/interface';

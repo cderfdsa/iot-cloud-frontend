@@ -1,3 +1,4 @@
+import { MqttIns } from '@/utils/mqtt-sdk';
 export type RoleType = '' | '*' | 'admin' | 'user';
 export interface UserState {
   account?: string;
@@ -5,4 +6,5 @@ export interface UserState {
   secret?: string;
   role?: string;
   avatar?: string;
+  mqttInstance?: MqttIns;
 }
