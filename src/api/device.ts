@@ -86,6 +86,36 @@ export function deviceTypeAddForApi(data: ReqDtoAddDeviceType) {
   return axios.post<ResDtoAdd>('/webapi/device/type/add', data);
 }
 //
+export interface ReqDtoEditDeviceType {
+  id: number;
+  name: string;
+  type: number;
+  communicationType: number;
+  protocolType: number;
+  protocolFormat: number;
+  busTimeValue: number;
+  busTimeUnit: string;
+}
+export interface ResDtoEdit {
+  id: number;
+}
+
+export function deviceTypeEditForApi(data: ReqDtoEditDeviceType) {
+  return axios.post<ResDtoEdit>('/webapi/device/type/edit', data);
+}
+//
+export interface ReqDtoCanRemove {
+  id: number;
+}
+export interface ResDtoCanRemove {
+  id: number;
+  ok: number;
+}
+
+export function deviceTypeCanRemoveForApi(data: ReqDtoCanRemove) {
+  return axios.post<ResDtoCanRemove>('/webapi/device/type/canRemove', data);
+}
+//
 export interface ReqDtoRemove {
   id: number;
 }
@@ -179,6 +209,24 @@ export function deviceTypeAttributeModbusPageForApi(
 ) {
   return axios.post<ResDtoPageDeviceTypeAttributeModbusPageInfo>(
     '/webapi/device/type/attribute/modbus/page',
+    data
+  );
+}
+// modbus
+export interface ReqDtoAddDeviceTypeAttributeModbus {
+  relDeviceTypeId: number;
+  relDeviceTypeAttributeId: number;
+  slaveAddress: number;
+  registerAddress: number;
+  readWriteType: number;
+  dataType: number;
+}
+
+export function deviceTypeAttributeModbusAddForApi(
+  data: ReqDtoAddDeviceTypeAttributeModbus
+) {
+  return axios.post<ResDtoAdd>(
+    '/webapi/device/type/attribute/modbus/add',
     data
   );
 }

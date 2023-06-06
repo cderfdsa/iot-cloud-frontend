@@ -28,7 +28,7 @@
           >
         </a-space>
       </div>
-      <a-tabs default-active-key="1">
+      <a-tabs default-active-key="1" lazy-load>
         <a-tab-pane
           key="1"
           title="关联设备"
@@ -62,9 +62,9 @@
           style="padding-left: 20px; padding-right: 20px"
         >
           <DeviceTypeFormForAddEdit
+            v-if="infoForDeviceType.id !== 0"
             :edit="true"
             :edit-obj="infoForDeviceType"
-            v-if="infoForDeviceType.id !== 0"
           />
         </a-tab-pane>
       </a-tabs>
@@ -168,6 +168,10 @@
       infoForDeviceType.busTime =
         deviceTypeGetForApiForResult.data.busTimeValue +
         deviceTypeGetForApiForResult.data.busTimeUnit;
+      infoForDeviceType.busTimeUnit =
+        deviceTypeGetForApiForResult.data.busTimeUnit;
+      infoForDeviceType.busTimeValue =
+        deviceTypeGetForApiForResult.data.busTimeValue;
       dataForInfo.push({ label: '轮询时间', value: infoForDeviceType.busTime });
     }
   };

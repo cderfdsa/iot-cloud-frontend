@@ -1,6 +1,24 @@
 /** @weichuang */
 //--------------------------------------------------------------------------
 <template>
+  <!-- 按钮区域-->
+  <a-row style="margin-bottom: 16px">
+    <a-col :span="12">
+      <a-space>
+        <a-button type="primary" @click="clickForAdd">
+          <template #icon>
+            <icon-plus />
+          </template>
+          {{ $t('searchTable.operation.create') }}
+        </a-button>
+      </a-space>
+    </a-col>
+    <a-col
+      :span="12"
+      style="display: flex; align-items: center; justify-content: end"
+    >
+    </a-col>
+  </a-row>
   <!-- 列表区域-->
   <a-table
     row-key="id"
@@ -14,7 +32,22 @@
     <template #index="{ rowIndex }">
       {{ rowIndex + 1 + paginationForObjects.offset }}
     </template>
+    <template #name="{ record }">
+      <a-link @click="() => clickForName(record)">{{
+        record.relDeviceTypeAttributeName
+      }}</a-link>
+    </template>
   </a-table>
+  <a-drawer
+    :width="440"
+    :visible="visibleForDrawer"
+    @ok="handleOkForDrawer"
+    @cancel="handleCancelForDrawer"
+    unmountOnClose
+  >
+    <template #title> {{ currentRecord.id !== 0 ? '编辑' : '添加' }} </template>
+    <div><ModbusFormForAddEdit /> </div>
+  </a-drawer>
 </template>
 //--------------------------------------------------------------------------
 <script lang="ts" setup>
@@ -32,7 +65,7 @@
   import useLoading from '@/hooks/loading';
   import { Pagination } from '@/types/global';
   import * as NumberToString from '@/utils/number-to-string';
-  import { number } from 'echarts';
+  import ModbusFormForAddEdit from './modubs-form-for-add-edit.vue';
   // ============= types
 
   // =============
@@ -48,6 +81,7 @@
     {
       title: '属性名称',
       dataIndex: 'relDeviceTypeAttributeName',
+      slotName: 'name',
     },
     {
       title: '从机地址',
@@ -125,6 +159,35 @@
       relDeviceTypeId: props.relDeviceTypeId,
     });
   };
+  // 添加编辑逻辑--- start
+  const defaultRecord = {
+    id: 0,
+    relDeviceTypeId: 0,
+    relDeviceTypeName: '',
+    relDeviceTypeAttributeId: 0,
+    relDeviceTypeAttributeName: '',
+    slaveAddress: 0,
+    registerAddress: 0,
+    readWriteType: 0,
+    readWriteTypeStr: '',
+    dataType: 0,
+    dataTypeStr: '',
+  };
+  let currentRecord =
+    reactive<ResDtoPageDeviceTypeAttributeModbus>(defaultRecord);
+  const clickForName = async (record: ResDtoPageDeviceTypeAttributeModbus) => {
+    visibleForDrawer.value = true;
+    currentRecord = record;
+  };
+  const visibleForDrawer = ref(false);
+  const handleOkForDrawer = async () => {};
+  const handleCancelForDrawer = async () => {
+    visibleForDrawer.value = false;
+  };
+  const clickForAdd = async () => {
+    visibleForDrawer.value = true;
+  };
+  // 添加编辑逻辑--- end
   // ============= step
   fetchDataForObjects({
     offset: 0,

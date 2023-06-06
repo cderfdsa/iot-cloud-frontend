@@ -2,7 +2,7 @@
 //--------------------------------------------------------------------------
 <template>
   <a-form :model="formForDeviceType" @submit="submitForDeviceType">
-    <a-row v-if="!edit">
+    <a-row v-if="!editObj">
       <a-col :span="24">
         <a-alert title="提示">设备类型是对同一种设备的相同点的描述。</a-alert>
       </a-col>
@@ -28,9 +28,9 @@
           :validate-trigger="['change', 'blur']"
         >
           <a-input
+            v-model="formForDeviceType.name"
             :style="{ width: '320px' }"
             placeholder="请输入类型名称"
-            v-model="formForDeviceType.name"
             allow-clear
           />
         </a-form-item>
@@ -85,29 +85,34 @@
           />
         </a-space>
       </a-col>
-      <a-col :span="12" v-if="formForDeviceType.protocolType === 2">
+      <a-col v-if="formForDeviceType.protocolType === 2" :span="12">
         <a-typography-title :heading="6">云端轮询频率：</a-typography-title>
         <a-typography-paragraph type="secondary" spacing="close">
           最快支持10秒。
         </a-typography-paragraph>
         <a-space direction="horizontal" size="large">
           <a-select
+            v-model="formForDeviceType.busTimeValue"
+            :default-value="formForDeviceType.busTimeValue"
             :options="
               formForDeviceType.busTimeUnit === 's'
                 ? dataForBus.s
                 : dataForBus.m || []
             "
-            v-model="formForDeviceType.busTimeValue"
-            :default-value="formForDeviceType.busTimeValue"
-          />
+          >
+          </a-select>
           <a-select
             v-model="formForDeviceType.busTimeUnit"
             :default-value="formForDeviceType.busTimeUnit"
             @change="changeForBusTimeUnit"
           >
-            <a-option v-for="value of Object.keys(dataForBus)" :key="value">{{
-              value
-            }}</a-option>
+            <a-option
+              v-for="item of Object.keys(dataForBus)"
+              :key="item"
+              :value="item"
+              :label="item"
+              >{{ item }}</a-option
+            >
           </a-select>
         </a-space>
       </a-col>
@@ -135,7 +140,33 @@
         <a-space direction="vertical" size="large">
           <a-form-item>
             <a-space>
+              <template #split>
+                <a-divider direction="vertical" />
+              </template>
               <a-button html-type="submit" type="primary">保存&提交</a-button>
+              <a-tooltip
+                v-if="editObj && !canRemoveOk"
+                content="存在关联的设备，禁止删除。"
+              >
+                <a-button
+                  type="primary"
+                  status="danger"
+                  @click="handleForRemove"
+                  >删除</a-button
+                >
+              </a-tooltip>
+              <a-tooltip
+                v-if="editObj && canRemoveOk"
+                content="删除后不能恢复，请谨慎操作。"
+              >
+                <a-popconfirm
+                  content="删除后不能恢复，请谨慎操作。"
+                  type="warning"
+                  @ok="handleForRemove"
+                >
+                  <a-button type="primary" status="danger">删除</a-button>
+                </a-popconfirm>
+              </a-tooltip>
             </a-space>
           </a-form-item>
         </a-space>
@@ -144,9 +175,10 @@
   </a-form>
 </template>
 //--------------------------------------------------------------------------
+
 <script lang="ts" setup>
   // =============
-  import { reactive, ref } from 'vue';
+  import { ref, reactive, onMounted } from 'vue';
   import { ValidatedError } from '@arco-design/web-vue/es/form/interface';
   import { useRouter } from 'vue-router';
   // =============
@@ -156,6 +188,12 @@
     deviceTypeAddForApi,
     ReqDtoAddDeviceType,
     ResDtoGetDeviceType,
+    deviceTypeEditForApi,
+    ReqDtoEditDeviceType,
+    deviceTypeCanRemoveForApi,
+    ReqDtoCanRemove,
+    deviceTypeRemoveForApi,
+    ReqDtoRemove,
   } from '@/api/device';
   // =============
   const router = useRouter();
@@ -201,7 +239,6 @@
 
   const props = withDefaults(
     defineProps<{
-      edit?: boolean;
       editObj?: ResDtoGetDeviceType;
     }>(),
     { edit: false, editObj: undefined }
@@ -273,11 +310,35 @@
     values: Record<string, any>;
   }) => {
     if (!errors) {
-      await deviceTypeAddForApi(values as ReqDtoAddDeviceType);
+      if (values.id) {
+        await deviceTypeEditForApi(values as ReqDtoEditDeviceType);
+        opSuccess();
+      } else {
+        await deviceTypeAddForApi(values as ReqDtoAddDeviceType);
+        opSuccess();
+        router.push({ name: 'DeviceType' });
+      }
+    }
+  };
+  const canRemoveOk = ref(false);
+  const canRemove = async () => {
+    if (formForDeviceType.id) {
+      const canRemoveObj = await deviceTypeCanRemoveForApi({
+        id: formForDeviceType.id,
+      });
+      if (canRemoveObj.data.ok === 1) {
+        canRemoveOk.value = true;
+      }
+    }
+  };
+  const handleForRemove = async () => {
+    if (canRemoveOk.value && formForDeviceType.id) {
+      await deviceTypeRemoveForApi({ id: formForDeviceType.id });
       opSuccess();
       router.push({ name: 'DeviceType' });
     }
   };
+  
   // ============= step
   changeForType(props.editObj ? props.editObj.type : 1);
   formForDeviceType.communicationType = props.editObj
@@ -287,12 +348,23 @@
   formForDeviceType.protocolFormat = props.editObj
     ? props.editObj?.protocolFormat
     : 101;
+  formForDeviceType.busTimeUnit = props.editObj
+    ? props.editObj?.busTimeUnit
+    : 's';
+  //
+  canRemove();
+  //
+  onMounted(() => {});
 </script>
+
 //--------------------------------------------------------------------------
+
 <script lang="ts">
   export default {
     name: 'DeviceTypeFormForAddEdit',
   };
 </script>
+
 //--------------------------------------------------------------------------
+
 <style scoped lang="less"></style>
