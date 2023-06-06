@@ -32,6 +32,6 @@ export const regexEmail = new RegExp(
 
 export default null;
 
-export function opSuccess() {
-  Message.info({ content: '操作成功' });
+export function opSuccess(content = '操作成功') {
+  Message.info({ content });
 }

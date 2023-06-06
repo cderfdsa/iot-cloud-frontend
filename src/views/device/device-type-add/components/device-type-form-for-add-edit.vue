@@ -155,18 +155,14 @@
                   >删除</a-button
                 >
               </a-tooltip>
-              <a-tooltip
+              <a-popconfirm
                 v-if="editObj && canRemoveOk"
                 content="删除后不能恢复，请谨慎操作。"
+                type="warning"
+                @ok="handleForRemove"
               >
-                <a-popconfirm
-                  content="删除后不能恢复，请谨慎操作。"
-                  type="warning"
-                  @ok="handleForRemove"
-                >
-                  <a-button type="primary" status="danger">删除</a-button>
-                </a-popconfirm>
-              </a-tooltip>
+                <a-button type="primary" status="danger">删除</a-button>
+              </a-popconfirm>
             </a-space>
           </a-form-item>
         </a-space>
@@ -338,7 +334,7 @@
       router.push({ name: 'DeviceType' });
     }
   };
-  
+
   // ============= step
   changeForType(props.editObj ? props.editObj.type : 1);
   formForDeviceType.communicationType = props.editObj

@@ -43,10 +43,16 @@
     :visible="visibleForDrawer"
     @ok="handleOkForDrawer"
     @cancel="handleCancelForDrawer"
+    :footer="false"
     unmountOnClose
   >
     <template #title> {{ currentRecord.id !== 0 ? '编辑' : '添加' }} </template>
-    <div><ModbusFormForAddEdit /> </div>
+    <div
+      ><ModbusFormForAddEdit
+        :submit="drawerOk"
+        @submitComplete="submitCompleteForDrawer"
+      />
+    </div>
   </a-drawer>
 </template>
 //--------------------------------------------------------------------------
@@ -160,6 +166,7 @@
     });
   };
   // 添加编辑逻辑--- start
+  const drawerOk = ref(false);
   const defaultRecord = {
     id: 0,
     relDeviceTypeId: 0,
@@ -180,12 +187,27 @@
     currentRecord = record;
   };
   const visibleForDrawer = ref(false);
-  const handleOkForDrawer = async () => {};
+  const handleOkForDrawer = async () => {
+    drawerOk.value = true;
+  };
   const handleCancelForDrawer = async () => {
+    drawerOk.value = false;
     visibleForDrawer.value = false;
   };
   const clickForAdd = async () => {
+    currentRecord.id = 0;
     visibleForDrawer.value = true;
+  };
+  const submitCompleteForDrawer = async (ok: number) => {
+    if (ok === 1) {
+      drawerOk.value = false;
+      fetchDataForObjects();
+    } else if (ok === 2) {
+      drawerOk.value = false;
+      visibleForDrawer.value = false;
+    } else {
+      drawerOk.value = false;
+    }
   };
   // 添加编辑逻辑--- end
   // ============= step

@@ -215,7 +215,7 @@ export function deviceTypeAttributeModbusPageForApi(
 // modbus
 export interface ReqDtoAddDeviceTypeAttributeModbus {
   relDeviceTypeId: number;
-  relDeviceTypeAttributeId: number;
+  relDeviceTypeAttributeId: number | undefined;
   slaveAddress: number;
   registerAddress: number;
   readWriteType: number;
